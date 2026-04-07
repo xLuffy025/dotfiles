@@ -115,7 +115,7 @@ alias gundo='git reset --soft HEAD~1'
 
 source ~/powerlevel10k/powerlevel10k.zsh-theme
 
-alias config='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+alias config='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 
 # Mensaje de bienvenida opcional
 echo "🚀 Termux listo con Zsh + P10k | $(date '+%H:%M')"
