@@ -67,6 +67,9 @@ validar_directorio() {
 # 📦 FUNCIONES PRINCIPALES
 # ============================================================
 
+# Cargar el gestor de paquetes multi-distro
+source "$REPO_DIR/utils/package-manager.sh"
+
 instalar_basicos(){
     msg "Instalando paquetes esenciales..."
     
