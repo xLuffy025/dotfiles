@@ -122,3 +122,16 @@ echo "🚀 Termux listo con Zsh + P10k | $(date '+%H:%M')"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# === Python Dev Aliases ===
+alias venv='source ~/.venv/bin/activate'
+alias vexit='deactivate'
+alias mkvenv='python -m venv ~/.venv && source ~/.venv/bin/activate && pip install --upgrade pip'
+alias pyreq='pip freeze > requirements.txt && echo "Guardado en requirements.txt"'
+alias pydev='source ~/.venv/bin/activate && echo "🐍 Entorno Python Dev activado"'
+
+echo "🐍 Python Dev listo: usa pydev para activar el entorno."
+
+# === Node.js Aliases ===
+alias noj='nose index.js'
+

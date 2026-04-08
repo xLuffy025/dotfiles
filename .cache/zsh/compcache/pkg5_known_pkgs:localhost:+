@@ -1,0 +1,4 @@
+_pkg5_known_pkgs=( ${(Q)"${(z)$(<<\EO:_pkg5_known_pkgs
+'Unknown'
+EO:_pkg5_known_pkgs
+)}"} )
