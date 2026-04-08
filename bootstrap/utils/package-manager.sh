@@ -46,7 +46,7 @@ detectar_pm() {
             PM_CLEAN="sudo apk cache clean"
             ;;
         termux)
-            PM_UPDATE="pkg update -y -q"
+            PM_UPDATE="pkg update -y && pkg upgrade -y -q"
             PM_INSTALL="pkg install -y"
             PM_REMOVE="pkg uninstall -y"
             PM_CLEAN="pkg clean"
