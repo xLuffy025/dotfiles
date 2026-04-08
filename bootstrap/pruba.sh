@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-REPO_DIR="$(cd "$SCRIPT_DIR/.." pwd)"
+SCRIPT_DIR=" SCRIPT_DIR/scripts"
 
 echo "$SCRIPT_DIR"
 echo "$REPO_DIR"

@@ -27,7 +27,9 @@ err(){ echo -e "${RED}[✖]${RESET} $1"; }
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Obtener el directorio raíz del repositorio (un nivel arriba de bootstrap)
-REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/" && pwd)"
+
+
 
 # Verificar que el repositorio es válido
 if [ ! -d "$REPO_DIR" ]; then
