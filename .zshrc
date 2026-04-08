@@ -77,7 +77,7 @@ alias up='pkg update -y && pkg upgrade -y'
 
 # Alias proot-distro
 
-alias arch='proot-distro login archlinux'
+alias arch='proot-distro login archlinux --user xluffy025'
 alias ubuntu='proot-distro login ubuntu'
 alias debian='proot-distro login debian'
 alias rocky='proot-distro login rockylinux'
