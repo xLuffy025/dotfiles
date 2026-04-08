@@ -1,4 +1,0 @@
-_pkg5_installed_pkgs=( ${(Q)"${(z)$(<<\EO:_pkg5_installed_pkgs
-'Unknown'
-EO:_pkg5_installed_pkgs
-)}"} )
