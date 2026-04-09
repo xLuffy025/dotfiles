@@ -13,11 +13,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$(dirname "$0")/../lib/detect_distro.sh"
 source "$(dirname "$0")/../lib/colors.sh"
 
-msg()  { echo -e "📦 ${1}"; }
-ok()   { echo -e "✅ ${1}"; }
-warn() { echo -e "⚠️ ${1}"; }
-err()  { echo -e "❌ ${1}" >&2; }
-
 msg "🔍 Detectando entorno..."
 echo -e "🌍 Entorno: ${ENV} | 🐧 Distro: ${OS_ID} | 📦 Gestor: ${PKG}"
 
