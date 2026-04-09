@@ -10,7 +10,8 @@ IFS=$'\n\t'
 
 # Cargar entorno
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/env.sh"
+source "$(dirname "$0")/../lib/detect_distro.sh"
+source "$(dirname "$0")/../lib/colors.sh"
 
 msg()  { echo -e "📦 ${1}"; }
 ok()   { echo -e "✅ ${1}"; }
