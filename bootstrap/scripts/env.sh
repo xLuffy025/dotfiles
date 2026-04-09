@@ -6,7 +6,12 @@ set -u
 
 # ==== Detect TERMUX ====
 detect_termux() {
-  [[ -d "/data/data/com.termux/files/usr" && "$PREFIX" == *"/data/data/com.termux/files/usr"* ]]
+  if [[ -d "/data/data/com.termux/files/usr" ]]; then
+    if [[ -n "${PREFIX:-}" && "$PREFIX" == *"/data/data/com.termux/files/usr"* ]]; then
+      return 0
+    fi
+  fi
+  return 1
 }
 
 # ==== Detect PROOT ====
@@ -27,10 +32,14 @@ detect_proot() {
 # ==== Detect DISTRO (para Linux/Proot) ====
 detect_distro() {
   if [ -f /etc/os-release ]; then
-    ./etc/os-release
-    echo "${ID,,}"
+    . /etc/os-release
+    OS=$ID
+    #OS_VERSION=$VERSION_ID
+  elif [ -f /etc/lsb-release ]; then 
+    . /etc/lsb-release 
+    OS=$(echo $DISTROB_ID | tr '[:upper:]' '[:lower:]')
   else
-    echo "unknown"
+    OS="unknown"
   fi
 }
 
@@ -88,4 +97,3 @@ if [ -t 1 ]; then
   echo -e "📦 Gestor: ${PKG:-unknown}"
   echo -e "🔑 Root: ${IS_ROOT}\n"
 fi
-

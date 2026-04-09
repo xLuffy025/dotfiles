@@ -1,289 +1,138 @@
 #!/usr/bin/env bash
-
 # ============================================================
-# Multi-Distro Package Manager Detector
-# Soporta: Debian/Ubuntu, Arch, Fedora, openSUSE, Alpine, Termux
-# ============================================================
-
-# 🎨 Colores
-GREEN="\033[1;32m"
-YELLOW="\033[1;33m"
-CYAN="\033[1;36m"
-RED="\033[1;31m"
-RESET="\033[0m"
-
-# 🧩 Funciones de mensajes
-msg(){ echo -e "${CYAN}==>${RESET} $1"; }
-ok(){ echo -e "${GREEN}[✔]${RESET} $1"; }
-warn(){ echo -e "${YELLOW}[!]${RESET} $1"; }
-err(){ echo -e "${RED}[✖]${RESET} $1"; }
-
-# ============================================================
-# 🔍 DETECCIÓN DE DISTRO
+# install_packages.sh — Instalador universal de dependencias
+# Usa la detección de entorno desde env.sh
+# Autor: xLuffy025
 # ============================================================
 
-detectar_distro() {
-    if [ -f /etc/os-release ]; then
-        . /etc/os-release
-        OS=$ID
-        OS_VERSION=$VERSION_ID
-    elif [ -f /etc/lsb-release ]; then
-        . /etc/lsb-release
-        OS=$(echo $DISTRIB_ID | tr '[:upper:]' '[:lower:]')
-    else
-        OS="unknown"
-    fi
-    
-    # Normalizar nombres de distro
-    case "$OS" in
-        ubuntu|debian) OS="debian" ;;
-        fedora|rhel|centos) OS="fedora" ;;
-        arch|manjaro) OS="arch" ;;
-        opensuse*) OS="opensuse" ;;
-        alpine) OS="alpine" ;;
-        termux) OS="termux" ;;
-        *) OS="unknown" ;;
-    esac
-    
-    echo "$OS"
+set -euo pipefail
+IFS=$'\n\t'
+
+# Cargar entorno
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/env.sh"
+
+msg()  { echo -e "📦 ${1}"; }
+ok()   { echo -e "✅ ${1}"; }
+warn() { echo -e "⚠️ ${1}"; }
+err()  { echo -e "❌ ${1}" >&2; }
+
+msg "🔍 Detectando entorno..."
+echo -e "🌍 Entorno: ${ENV} | 🐧 Distro: ${OS_ID} | 📦 Gestor: ${PKG}"
+
+# ------------------------------------------------------------
+# Instalador universal de paquetes base
+# ------------------------------------------------------------
+
+install_base_packages() {
+  msg "Instalando paquetes esenciales para ${ENV}/${OS_ID}..."
+
+  case "$PKG" in
+    pkg)
+      pkg update -y && pkg upgrade -y 
+      pkg install git zsh tmux starship \
+        clang make cmake ninja \
+        python python-pip nodejs \
+        rust golang php ruby \
+        ripgrep fd eza bat lsd bc htop ranger ncdu jq \
+        openssh rsync rclone curl wget \
+        proot proot-distro \
+        neovim vim termux-api build-essential unzip tar \
+        ripgrep fd tree htop rsync ncdu nmap net-tools || warn "Algunos paquetes fallaron."
+      ;;
+
+    apt)-
+      $SUDO apt update -y && $SUDO apt upgrade -y
+      $SUDO apt install -y git curl wget zsh vim tmux python3 python3-pip \
+        nodejs npm build-essential jq unzip tar ripgrep fd-find tree htop rsync ncdu nmap || warn "Algunos paquetes fallaron."
+      ;;
+
+    pacman)
+      $SUDO pacman -Sy --noconfirm --needed git curl wget zsh vim neovim tmux python nodejs npm \
+        base-devel ripgrep fd tree htop rsync ncdu nmap || warn "Algunos paquetes fallaron."
+      ;;
+
+    dnf)
+      $SUDO dnf install -y git curl wget zsh vim neovim tmux python3 python3-pip nodejs npm \
+        @development-tools ripgrep fd-find tree htop rsync ncdu nmap || warn "Algunos paquetes fallaron."
+      ;;
+
+    yum)
+      $SUDO yum install -y git curl wget zsh vim neovim tmux python3 python3-pip nodejs npm \
+        make gcc jq unzip tar tree htop rsync || warn "Algunos paquetes fallaron."
+      ;;
+
+    apk)
+      $SUDO apk add --no-cache git curl wget zsh vim neovim tmux python3 py3-pip nodejs npm \
+        build-base jq tar ripgrep fd tree htop rsync ncdu nmap || warn "Algunos paquetes fallaron."
+      ;;
+
+    *)
+      err "No se reconoce el gestor de paquetes (${PKG}). Debes instalar los paquetes manualmente."
+      return 1
+      ;;
+  esac
+
+  ok "Dependencias básicas instaladas con éxito en ${ENV} (${PKG})."
 }
 
-# ============================================================
-# 📦 DEFINICIÓN DE PAQUETES POR DISTRO
-# ============================================================
+# ------------------------------------------------------------
+# Instalador de dependencias opcionales (por rol)
+# ------------------------------------------------------------
 
-# Array asociativo con paquetes (ajusta según necesites)
-declare -A PAQUETES_DEBIAN=(
-    [git]="git"
-    [curl]="curl"
-    [wget]="wget"
-    [zsh]="zsh"
-    [vim]="vim"
-    [neovim]="neovim"
-    [tmux]="tmux"
-    [nodejs]="nodejs npm"
-    [python]="python3 python3-pip python3-dev"
-    [build_tools]="build-essential"
-    [openssl]="openssl libssl-dev"
-    [sqlite]="sqlite3 libsqlite3-dev"
-)
-
-declare -A PAQUETES_FEDORA=(
-    [git]="git"
-    [curl]="curl"
-    [wget]="wget"
-    [zsh]="zsh"
-    [vim]="vim"
-    [neovim]="neovim"
-    [tmux]="tmux"
-    [nodejs]="nodejs npm"
-    [python]="python3 python3-pip python3-devel"
-    [build_tools]="gcc g++ make"
-    [openssl]="openssl openssl-devel"
-    [sqlite]="sqlite sqlite-devel"
-)
-
-declare -A PAQUETES_ARCH=(
-    [git]="git"
-    [curl]="curl"
-    [wget]="wget"
-    [zsh]="zsh"
-    [vim]="vim"
-    [neovim]="neovim"
-    [tmux]="tmux"
-    [nodejs]="nodejs npm"
-    [python]="python python-pip"
-    [build_tools]="base-devel"
-    [openssl]="openssl"
-    [sqlite]="sqlite"
-)
-
-declare -A PAQUETES_OPENSUSE=(
-    [git]="git"
-    [curl]="curl"
-    [wget]="wget"
-    [zsh]="zsh"
-    [vim]="vim"
-    [neovim]="neovim"
-    [tmux]="tmux"
-    [nodejs]="nodejs npm"
-    [python]="python3 python3-pip python3-devel"
-    [build_tools]="gcc gcc-c++ make"
-    [openssl]="openssl libopenssl-devel"
-    [sqlite]="sqlite3 sqlite3-devel"
-)
-
-declare -A PAQUETES_ALPINE=(
-    [git]="git"
-    [curl]="curl"
-    [wget]="wget"
-    [zsh]="zsh"
-    [vim]="vim"
-    [neovim]="neovim"
-    [tmux]="tmux"
-    [nodejs]="nodejs npm"
-    [python]="python3 py3-pip"
-    [build_tools]="build-base"
-    [openssl]="openssl openssl-dev"
-    [sqlite]="sqlite sqlite-dev"
-)
-
-declare -A PAQUETES_TERMUX=(
-    [git]="git"
-    [curl]="curl"
-    [wget]="wget"
-    [zsh]="zsh"
-    [vim]="vim"
-    [neovim]="neovim"
-    [tmux]="tmux"
-    [nodejs]="nodejs"
-    [python]="python"
-    [build_tools]="clang make"
-    [openssl]="openssl"
-    [sqlite]="sqlite"
-)
-
-# ============================================================
-# 🎯 FUNCIONES DE INSTALACIÓN POR DISTRO
-# ============================================================
-
-instalar_debian() {
-    msg "Detectado: Debian/Ubuntu"
-    msg "Actualizando índice de paquetes..."
-    sudo apt-get update -qq || { err "Falló apt-get update"; return 1; }
-    
-    msg "Instalando paquetes esenciales..."
-    local paquetes=(
-        "${PAQUETES_DEBIAN[git]}"
-        "${PAQUETES_DEBIAN[curl]}"
-        "${PAQUETES_DEBIAN[wget]}"
-        "${PAQUETES_DEBIAN[build_tools]}"
-        "${PAQUETES_DEBIAN[openssl]}"
-        "${PAQUETES_DEBIAN[sqlite]}"
-    )
-    
-    sudo apt-get install -y "${paquetes[@]}" || { err "Falló la instalación"; return 1; }
-    ok "Paquetes esenciales instalados"
+install_dev_tools() {
+  msg "Instalando herramientas para desarrollo..."
+  case "$PKG" in
+    pkg|apt)
+      $SUDO apt install -y gcc g++ make cmake gdb clang lldb python3-venv pipx || true
+      ;;
+    pacman)
+      $SUDO pacman -S --noconfirm --needed gcc make cmake gdb clang lldb python-virtualenv || true
+      ;;
+    dnf|yum)
+      $SUDO dnf install -y gcc-c++ make cmake gdb clang lldb python3-virtualenv || true
+      ;;
+  esac
+  ok "Herramientas de desarrollo instaladas."
 }
 
-instalar_fedora() {
-    msg "Detectado: Fedora/RHEL/CentOS"
-    msg "Actualizando índice de paquetes..."
-    sudo dnf update -y -q || sudo yum update -y -q || { err "Falló la actualización"; return 1; }
-    
-    msg "Instalando paquetes esenciales..."
-    local paquetes=(
-        "${PAQUETES_FEDORA[git]}"
-        "${PAQUETES_FEDORA[curl]}"
-        "${PAQUETES_FEDORA[wget]}"
-        "${PAQUETES_FEDORA[build_tools]}"
-        "${PAQUETES_FEDORA[openssl]}"
-        "${PAQUETES_FEDORA[sqlite]}"
-    )
-    
-    sudo dnf install -y "${paquetes[@]}" 2>/dev/null || sudo yum install -y "${paquetes[@]}" || { err "Falló la instalación"; return 1; }
-    ok "Paquetes esenciales instalados"
+install_gui_tools() {
+  msg "Instalando herramientas con GUI (solo para distros completas)..."
+  case "$PKG" in
+    apt)
+      $SUDO apt install -y fastfetch ranger || true
+      ;;
+    pacman)
+      $SUDO pacman -S --noconfirm --needed fastfetch ranger firefox kitty alacritty rofi dolphin thunar | true
+      ;;
+  esac
+  ok "Herramientas gráficas instaladas (si aplica)."
 }
 
-instalar_arch() {
-    msg "Detectado: Arch/Manjaro"
-    msg "Actualizando índice de paquetes..."
-    sudo pacman -Sy --noconfirm >/dev/null || { err "Falló pacman -Sy"; return 1; }
-    
-    msg "Instalando paquetes esenciales..."
-    local paquetes=(
-        "${PAQUETES_ARCH[git]}"
-        "${PAQUETES_ARCH[curl]}"
-        "${PAQUETES_ARCH[wget]}"
-        "${PAQUETES_ARCH[build_tools]}"
-        "${PAQUETES_ARCH[openssl]}"
-        "${PAQUETES_ARCH[sqlite]}"
-    )
-    
-    sudo pacman -S --noconfirm "${paquetes[@]}" || { err "Falló la instalación"; return 1; }
-    ok "Paquetes esenciales instalados"
-}
+# ------------------------------------------------------------
+# Modo automático o interactivo
+# ------------------------------------------------------------
 
-instalar_opensuse() {
-    msg "Detectado: openSUSE"
-    msg "Actualizando índice de paquetes..."
-    sudo zypper refresh -q || { err "Falló zypper refresh"; return 1; }
-    
-    msg "Instalando paquetes esenciales..."
-    local paquetes=(
-        "${PAQUETES_OPENSUSE[git]}"
-        "${PAQUETES_OPENSUSE[curl]}"
-        "${PAQUETES_OPENSUSE[wget]}"
-        "${PAQUETES_OPENSUSE[build_tools]}"
-        "${PAQUETES_OPENSUSE[openssl]}"
-        "${PAQUETES_OPENSUSE[sqlite]}"
-    )
-    
-    sudo zypper install -y "${paquetes[@]}" || { err "Falló la instalación"; return 1; }
-    ok "Paquetes esenciales instalados"
-}
+if [[ "${1:-}" == "--auto" ]]; then
+  msg "🚀 Instalación automática iniciada..."
+  install_base_packages
+  install_dev_tools
+  ok "✅ Instalación automática completa."
+else
+  echo
+  echo "=== MENU INSTALACIÓN DE PAQUETES ==="
+  echo "1) Instalar paquetes base"
+  echo "2) Instalar herramientas de desarrollo"
+  echo "3) Instalar herramientas gráficas"
+  echo "0) Salir"
+  echo
+  read -p "Selecciona una opción: " opt
+  case $opt in
+    1) install_base_packages ;;
+    2) install_dev_tools ;;
+    3) install_gui_tools ;;
+    0) echo "Saliendo..." ;;
+    *) warn "Opción inválida" ;;
+  esac
+fi 
 
-instalar_alpine() {
-    msg "Detectado: Alpine Linux"
-    msg "Actualizando índice de paquetes..."
-    sudo apk update -q || { err "Falló apk update"; return 1; }
-    
-    msg "Instalando paquetes esenciales..."
-    local paquetes=(
-        "${PAQUETES_ALPINE[git]}"
-        "${PAQUETES_ALPINE[curl]}"
-        "${PAQUETES_ALPINE[wget]}"
-        "${PAQUETES_ALPINE[build_tools]}"
-        "${PAQUETES_ALPINE[openssl]}"
-        "${PAQUETES_ALPINE[sqlite]}"
-    )
-    
-    sudo apk add "${paquetes[@]}" || { err "Falló la instalación"; return 1; }
-    ok "Paquetes esenciales instalados"
-}
-
-instalar_termux() {
-    msg "Detectado: Termux"
-    msg "Actualizando índice de paquetes..."
-    pkg update -y -q || { err "Falló pkg update"; return 1; }
-    
-    msg "Instalando paquetes esenciales..."
-    local paquetes=(
-        "${PAQUETES_TERMUX[git]}"
-        "${PAQUETES_TERMUX[curl]}"
-        "${PAQUETES_TERMUX[wget]}"
-        "${PAQUETES_TERMUX[build_tools]}"
-        "${PAQUETES_TERMUX[openssl]}"
-        "${PAQUETES_TERMUX[sqlite]}"
-    )
-    
-    pkg install -y "${paquetes[@]}" || { err "Falló la instalación"; return 1; }
-    ok "Paquetes esenciales instalados"
-}
-
-# ============================================================
-# 🚀 EJECUCIÓN PRINCIPAL
-# ============================================================
-
-main() {
-    msg "Detectando distribución Linux..."
-    local DISTRO=$(detectar_distro)
-    
-    msg "Distro detectada: ${GREEN}$DISTRO${RESET}"
-    
-    case "$DISTRO" in
-        debian) instalar_debian ;;
-        fedora) instalar_fedora ;;
-        arch) instalar_arch ;;
-        opensuse) instalar_opensuse ;;
-        alpine) instalar_alpine ;;
-        termux) instalar_termux ;;
-        *)
-            err "Distro no soportada: $DISTRO"
-            err "Distros soportadas: Debian, Ubuntu, Fedora, RHEL, CentOS, Arch, Manjaro, openSUSE, Alpine, Termux"
-            return 1
-            ;;
-    esac
-}
-
-main "$@"
