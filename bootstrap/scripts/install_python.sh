@@ -150,16 +150,20 @@ install_pip_packages() {
 case "$OS_ID" in
     ubuntu|debian)
         install_python_debian
+        install_pip_packages
         ;;
-    arch|manjaro)
+    arch|archarm|manjaro)
         install_python_arch
+        install_pip_packages
         ;;
     fedora|rhel|centos)
         install_python_fedora
+        install_pip_packages
         ;;
     *)
         if [ "$ENV" = "termux" ]; then
             install_python_termux
+            install_pip_packages
         else
             err "Distribución no soportada: $OS_ID"
             exit 1
