@@ -66,29 +66,43 @@ instalar_basicos(){
   msg "Instalando paquetes esenciales..."
   
   if validar_archivos "scripts/install_packages.sh"; then  
-  bash scripts/install_packages.sh || err "Error al instalar paquetes básicos"
+  bash "$REPO_DIR/scripts/install_packages.sh" || err "Error al instalar paquetes básicos"
   ok "Dependencias básicas instaladas."
 else 
-  err "script de paquete no encontrado"
+  err "Script de paquete no encontrado"
   return 1
   fi
 }
 
 instalar_zsh(){
   msg "Instalando y configurando Zsh..."
-  bash scripts/install_zshxit.sh
+
+  if validar_archivos "scripts/install_zsh.sh"; then 
+    bash "$REPO_DIR/scripts/install_zsh.sh" 
+else 
+  err "Script de zsh no encontrado"
+  return 1 
+  fi
   ok "Zsh configurado."
 }
 
 instalar_distros(){
   msg "Instalando distribuciones Proot..."
-  bash scripts/install_pr-dis.sh 
+
+  if validar_archivos "scripts/install_pr-dis.sh"; then
+    bash "$REPO_DIR/scripts/install_pr-dis.sh" 
   ok "Proot distros instaladas."
+else 
+  err "Script de proot-distro no encontrado"
+  return 1
+  fi
 }
 
 instalar_python_dev(){
   msg "Configurando entorno Python..."
-  bash scripts/install_python.sh
+
+  if validar_archivos "scripts/install_python.sh"
+    bash "$REPO_DIR/scripts/install_python.sh" 
   ok "Python dev configurado."
 }
 
