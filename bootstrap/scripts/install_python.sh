@@ -1,5 +1,3 @@
-#!/bin/bash
-
 #!/usr/bin/env bash
 
 source "$(dirname "$0")/../lib/detect_distro.sh"
@@ -7,6 +5,12 @@ source "$(dirname "$0")/../lib/colors.sh"
 
 msg "Detectada distro: $OS_ID (en ambiente: $ENV)"
 msg "Gestor de paquetes: $PKG"
+
+# Crear entorno virtual global
+mkdir -p ~/mi-proyecto-python
+cd ~/mi-proyecto-python
+python -m venv ~/.venv
+source ~/.venv/bin/activate
 
 # Paquetes comunes (todas las distros)
 COMMON_PACKAGES=(
@@ -25,6 +29,12 @@ FULL_DISTRO_PACKAGES=(
     "libbz2-dev"
 )
 
+# Paquetes ArchLinux específicos
+ARCH_PACKAGES=(
+    "python"
+    "python-pip"
+    "clang"
+)
 # Paquetes Termux específicos
 TERMUX_PACKAGES=(
     "python"
@@ -39,34 +49,75 @@ PIP_COMMON=(
     "wheel"
     "requests"
     "beautifulsoup4"
+    "tqdm"
+    "colorama"
+    "ipython"
+    "rich"
+    "pylint"
+    "black"
+    "flake8"
+    "isort" 
+    "autopep8" 
+    "mypy"
+    "virtualenv" 
+    "virtualenvwrapper"
+    "aiohttp" 
+    "selenium"
+    "typer" 
+    "click"
+    "loguru"
 )
 
 # Módulos pip solo en sistemas completos (causan problemas en Termux)
 PIP_FULL_DISTRO=(
+    "requests" 
+    "beautifulsoup4" 
+    "lxml"
+    "tqdm"
+    "colorama"
+    "ipython" 
+    "rich"
+    "pylint" 
+    "black"
+    "flake8" 
+    "isort" 
+    "autopep8"
+    "mypy"
+    "virtualenv" 
+    "virtualenvwrapper"
+    "httpx"
+    "aiohttp" 
+    "selenium" 
+    "playwright"
     "numpy"
     "pandas"
-    "matplotlib"
-    "scipy"
+    "matplotlib" 
+    "seaborn" 
     "scikit-learn"
+    "jupyter"
+    "click"
+    "loguru" 
+    "fastapi" 
+    "uvicorn"
 )
 
 install_python_debian() {
     msg "Instalando Python en Debian/Ubuntu..."
-    sudo apt update
-    sudo apt install -y "${COMMON_PACKAGES[@]}" "${FULL_DISTRO_PACKAGES[@]}"
+    $SUDO apt update
+    $SUDO apt install -y "${COMMON_PACKAGES[@]}" "${FULL_DISTRO_PACKAGES[@]}"
     ok "Python instalado en Debian/Ubuntu"
 }
 
 install_python_arch() {
     msg "Instalando Python en Arch..."
-    sudo pacman -Sy
-    sudo pacman -S --noconfirm "${COMMON_PACKAGES[@]}" "${FULL_DISTRO_PACKAGES[@]}"
+    $SUDO pacman -Sy
+    $SUDO pacman -S --noconfirm "${ARCH_PACKAGES[@]}" #"${FULL_DISTRO_PACKAGES[@]}"
     ok "Python instalado en Arch"
 }
 
 install_python_fedora() {
     msg "Instalando Python en Fedora/RHEL..."
-    sudo dnf install -y "${COMMON_PACKAGES[@]}" "${FULL_DISTRO_PACKAGES[@]}"
+    $SUDO dnf install -y "${COMMON_PACKAGES[@]}" "${FULL_DISTRO_PACKAGES[@]}"
     ok "Python instalado en Fedora/RHEL"
 }
 
@@ -88,7 +139,7 @@ install_pip_packages() {
         pip install "${PIP_FULL_DISTRO[@]}"
         ok "Paquetes de distro completa instalados"
     else
-        warn "Omitiendo paquetes que no funcionan en Termux"
+      warn "Omitiendo paquetes que no funcionan en Termux"
     fi
 }
 
@@ -115,31 +166,6 @@ case "$OS_ID" in
         fi
         ;;
 esac
-
-# Instalar paquetes pip al final
-install_pip_packages
-
-ok "✅ Instalación de Python completada"
-
-# Crear entorno virtual global
-mkdir -p ~/mi-proyecto-python
-cd ~/mi-proyecto-python
-python -m venv ~/.venv
-source ~/.venv/bin/activate
-
-# Actualizar pip y setuptools
-pip install --upgrade pip setuptools wheel
-
-# === Instalación de paquetes útiles ===
-pip install requests beautifulsoup4 tqdm colorama
-pip install ipython rich
-pip install pylint black flake8 isort autopep8 mypy
-pip install virtualenv virtualenvwrapper
-pip install aiohttp selenium
-pip install typer click loguru
-
-# Guardar dependencias
-pip freeze > ~/.venv/requirements.txt
 
 # Crear alias en .zshrc (si usas zsh)
 if [ -f ~/.zshrc ]; then
@@ -168,6 +194,9 @@ alias pydev='source ~/.venv/bin/activate && echo "🐍 Entorno Python Dev activa
 
 EOF
 fi
+
+# Guardar dependencias
+pip freeze > ~/.venv/requirements.txt
 
 # Crear mensaje de bienvenida
 echo 'echo "🐍 Python Dev listo: usa pydev para activar el entorno."' >> ~/.zshrc
