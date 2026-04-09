@@ -7,8 +7,7 @@ set -u
 # ==== Detect TERMUX ====
 detect_termux() {
   if [[ -d "/data/data/com.termux/files/usr" ]]; then
-    if [[ -n "
-${PREFIX:-}" && "$PREFIX" == *"/data/data/com.termux/files/usr"* ]]; then
+    if [[ -n "${PREFIX:-}" && "$PREFIX" == *"/data/data/com.termux/files/usr"* ]]; then
       return 0
     fi
   fi
