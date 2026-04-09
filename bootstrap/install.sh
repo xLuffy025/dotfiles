@@ -101,7 +101,7 @@ else
 instalar_python_dev(){
   msg "Configurando entorno Python..."
 
-  if validar_archivos "scripts/install_python.sh"
+  if validar_archivos "scripts/install_python.sh"; then
     bash "$REPO_DIR/scripts/install_python.sh" 
   ok "Python dev configurado."
 else
