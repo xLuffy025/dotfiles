@@ -9,7 +9,7 @@ RED="\033[1;31m"
 RESET="\033[0m"
 
 # 🧩 Funciones de mensajes
-msg(){ echo -e "${CYAN}==>${RESET} $1"; }
-ok(){ echo -e "${GREEN}[✔]${RESET} $1"; }
-warn(){ echo -e "${YELLOW}[!]${RESET} $1"; }
-err(){ echo -e "${RED}[✖]${RESET} $1"; }
+msg()  { echo -e "📦 ${1}"; }
+ok()   { echo -e "✅ ${1}"; }
+warn() { echo -e "⚠️ ${1}"; }
+err()  { echo -e "❌ ${1}" >&2; }
