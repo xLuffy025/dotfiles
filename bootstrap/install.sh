@@ -104,6 +104,10 @@ instalar_python_dev(){
   if validar_archivos "scripts/install_python.sh"
     bash "$REPO_DIR/scripts/install_python.sh" 
   ok "Python dev configurado."
+else
+  err "Script de python no encontrado"
+  fi
+
 }
 
 instalar_node_js(){
