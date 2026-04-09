@@ -208,4 +208,4 @@ echo 'echo "🐍 Python Dev listo: usa pydev para activar el entorno."' >> ~/.zs
 # Limpiar cache
 pip cache purge
 
-ok "✅ Instalación completa. Reinicia Termux o ejecuta: source ~/.zshrc"
+ok "Instalación completa. Reinicia el sistemas o ejecuta: source ~/.zshrc"
