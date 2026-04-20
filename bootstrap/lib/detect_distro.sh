@@ -2,7 +2,8 @@
 # Universal environment detector — Termux / Proot / Linux
 # Autor: xLuffy025 (versión refinada + mejorada)
 
-set -u
+set -euo pipefail
+IFS='\n\t'
 
 # ==== Detect TERMUX ====
 detect_termux() {
