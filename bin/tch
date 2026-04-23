@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+
+archivo="$1"
+
+# Validar entrada
+if [[ -z "$archivo" ]]; then
+  echo "Uso: tch nombre.ext"
+  exit 1
+fi
+
+# Si ya existe, no lo sobreescribas
+if [[ -e "$archivo" ]]; then
+  echo "El archivo ya existe"
+  exit 1
+fi
+
+# Crear archivo
+touch "$archivo"
+
+# Obtener extensión
+ext="${archivo##*.}"
+
+# Contenido segun su extensión
+case "$ext" in
+sh)
+  echo "#!/usr/bin/env bash" >"$archivo"
+  chmod +x "$archivo"
+  ;;
+py)
+  echo "#!/usr/bin/env python3" >"$archivo"
+  chmod +x "$archivo"
+  ;;
+html)
+  cat <<EOF >"$archivo"
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+</head>
+<body>
+
+</body>
+</html>
+EOF
+  ;;
+js)
+  echo "// JavaScript file" >"$archivo"
+  ;;
+txt)
+  # nada especiañ
+  ;;
+*)
+  echo "Archivo creado sin plantilla"
+  ;;
+esac
+
+# Preguntar permiso especial
+read -p "¿Quieres asignar permisos? (ej: 755 o Enter para omitir): " permisos 
+
+if [[ $permisos =~ ^[0-7][3]$ ]]; then
+  chmod "$permisos" "$archivo"
+fi 
+
+echo "Archivo listo:"
+ls -l "$archivo"

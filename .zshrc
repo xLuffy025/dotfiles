@@ -10,6 +10,7 @@ fi
 # === Configuración básica de Oh My Zsh ===
 export ZSH="$HOME/.oh-my-zsh"
 export EDITOR=nvim
+export PATH=$HOME/bin:$PATH
 #ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # Desactivar actualizaciones automáticas (mejora rendimiento en Termux)
@@ -68,6 +69,7 @@ alias lla='lsd -lha --group-dirs=first'
 alias ls='lsd --group-dirs=first'
 alias cat='bat'
 
+
 alias lls='ls -la'
 alias cls='clear'
 alias gs='git status'
@@ -89,9 +91,9 @@ alias copiar='termux-clipboard-set'
 alias pegar='termux-clipboard-get'
 
 # === Integración con tmux ===
-if [[ -z "$TMUX" ]]; then
-  tmux attach || tmux new-session
-fi 
+#if [[ -z "$TMUX" ]]; then
+#  tmux attach || tmux new-session
+#fi 
 
 # === Linux curso
 alias reg='~/termux-setup/dotfile/linux_clases/registra_ejercicio.sh'
