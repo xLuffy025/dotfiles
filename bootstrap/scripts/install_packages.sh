@@ -37,7 +37,7 @@ install_base_packages() {
         ripgrep fd tree htop rsync ncdu nmap net-tools || warn "Algunos paquetes fallaron."
       ;;
 
-    apt)-
+    apt)
       $SUDO apt update -y && $SUDO apt upgrade -y
       $SUDO apt install -y git curl wget zsh vim tmux python3 python3-pip \
         nodejs npm build-essential jq unzip tar ripgrep fd-find tree htop rsync ncdu nmap || warn "Algunos paquetes fallaron."
