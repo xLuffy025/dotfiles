@@ -43,6 +43,9 @@ test_github_connection() {
     printf '%s\n' "$output" >&2
     return 1
 }
+continue_prompt() {
+    read -r -p "Presiona Enter para continuar o Ctrl+C para cancelar..."
+}
 
 print_success "=== Configurador de SSH para GitHub (2026 edition) ==="
 
@@ -69,16 +72,18 @@ fi
 # ────────────────────────────────────────────────────────────────
 # 2. Generar clave nueva (solo si es necesario)
 # ────────────────────────────────────────────────────────────────
+EMAIL=read -r -p "Introduce tu correo de GitHub (o presiona Enter para usar el configurado en git): " EMAIL
+EMAIL="${EMAIL:-$(git config user.email || echo "tu-email@ejemplo.com")}"
 if [[ ! -f "$PUB_KEY_PATH" ]]; then
     print_info "Generando nueva clave ed25519..."
     print_info "Usa tu correo de GitHub cuando te pregunte"
 
-    generate_ssh_key "$KEY_PATH" "$(git config user.email || echo "tu-email@ejemplo.com")"
+    generate_ssh_key "$KEY_PATH" "$EMAIL"
 
     # Si falla (por ejemplo en sistemas muy viejos), intenta rsa
     if [[ ! -f "$PUB_KEY_PATH" ]]; then
         print_info "ed25519 no funcionó, intentando con rsa-sha2-512..."
-        generate_ssh_key "$KEY_PATH" "$(git config user.email || echo "tu-email@ejemplo.com")"
+        generate_ssh_key "$KEY_PATH" "$EMAIL"
     fi
 
     print_success "Clave generada en: $KEY_PATH"
@@ -90,7 +95,7 @@ fi
 print_info "Iniciando ssh-agent y agregando la clave... "
 
 # Comprueba si ya existe un agente SSH disponible
-if [[ -z "$SSH_AUTH_SOCK" ]] || ! ssh-add -l > /dev/null 2>&1; then
+if [[ -z "${SSH_AUTH_SOCK-}" ]] || ! ssh-add -l > /dev/null 2>&1; then
     eval "$(ssh-agent -s)" > /dev/null
 fi
 
@@ -114,6 +119,8 @@ print_info "4. Pon un título descriptivo (ej: \"MacBook 2025\" o \"Laptop Monte
 print_info "5. Pega la clave en el campo grande"
 print_info "6. Haz clic en → Add SSH key"
 print_info "7. Si GitHub pide tu contraseña, introdúcela para confirmar"
+
+continue_prompt    
 
 # ────────────────────────────────────────────────────────────────
 # 5. Prueba la conexión
