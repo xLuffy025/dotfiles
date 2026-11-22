@@ -61,6 +61,7 @@ if [[ -f "$KEY_PATH" && -f "$PUB_KEY_PATH" ]]; then
         print_success "Usaremos la clave existente."
     else
         print_error "Entonces generaremos una nueva..."
+        ssh-agent -t ed25519 -C "$EMAIL"
         KEY_PATH="${HOME}/.ssh/id_ed25519_$(date +%Y%m%d)"
         PUB_KEY_PATH="${KEY_PATH}.pub"
     fi
