@@ -30,10 +30,7 @@ test_github_connection() {
     local output
     
     output=$(
-    ssh -o BatchMode=yes \
-        -o IdentitiesOnly=yes \
-        -i "$key_path" \
-        -T git@github.com 2>&1
+    ssh -T git@github.com 2>&1
     ) || true
 
     if [[ "$output" == *"successfully authenticated"* ]]; then
@@ -72,8 +69,8 @@ fi
 # ────────────────────────────────────────────────────────────────
 # 2. Generar clave nueva (solo si es necesario)
 # ────────────────────────────────────────────────────────────────
-EMAIL=read -r -p "Introduce tu correo de GitHub (o presiona Enter para usar el configurado en git): " EMAIL
-EMAIL="${EMAIL:-$(git config user.email || echo "tu-email@ejemplo.com")}"
+read -r -p "Introduce tu correo de GitHub (o presiona Enter para usar el configurado en git): " EMAIL
+
 if [[ ! -f "$PUB_KEY_PATH" ]]; then
     print_info "Generando nueva clave ed25519..."
     print_info "Usa tu correo de GitHub cuando te pregunte"
