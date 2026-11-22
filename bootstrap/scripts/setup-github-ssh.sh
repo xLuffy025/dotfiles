@@ -23,7 +23,7 @@ print_success() {
 generate_ssh_key() {
     local key_path="$1"
     local email="$2"
-    ssh-keygen -t ed25519 -C "$email" -f "$key_path" -N ""
+    ssh-keygen -t ed25519 -C "$email" -f "$key_path"
 }
 test_github_connection() {
     local key_path="$1"
@@ -43,6 +43,9 @@ test_github_connection() {
 continue_prompt() {
     read -r -p "Presiona Enter para continuar o Ctrl+C para cancelar..."
 }
+email() {
+    read -r -p "Introduce tu correo de GitHub (o presiona Enter para usar el configurado en git): " EMAIL
+}
 
 print_success "=== Configurador de SSH para GitHub (2026 edition) ==="
 
@@ -61,7 +64,7 @@ if [[ -f "$KEY_PATH" && -f "$PUB_KEY_PATH" ]]; then
         print_success "Usaremos la clave existente."
     else
         print_error "Entonces generaremos una nueva..."
-        ssh-agent -t ed25519 -C "$EMAIL"
+        #ssh-agent -t ed25519 -C "$EMAIL"
         KEY_PATH="${HOME}/.ssh/id_ed25519_$(date +%Y%m%d)"
         PUB_KEY_PATH="${KEY_PATH}.pub"
     fi
@@ -70,11 +73,11 @@ fi
 # ────────────────────────────────────────────────────────────────
 # 2. Generar clave nueva (solo si es necesario)
 # ────────────────────────────────────────────────────────────────
-read -r -p "Introduce tu correo de GitHub (o presiona Enter para usar el configurado en git): " EMAIL
-
+email
 if [[ ! -f "$PUB_KEY_PATH" ]]; then
     print_info "Generando nueva clave ed25519..."
-    print_info "Usa tu correo de GitHub cuando te pregunte"
+    print_info "ssh-keygen te pedirá una frase de contraseña y que la confirmes."
+    print_info "Puedes dejarla vacía pulsando Enter si no quieres proteger la clave."
 
     generate_ssh_key "$KEY_PATH" "$EMAIL"
 
