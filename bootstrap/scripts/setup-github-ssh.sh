@@ -57,7 +57,7 @@ if [[ -f "$KEY_PATH" && -f "$PUB_KEY_PATH" ]]; then
     cat "$PUB_KEY_PATH"
     echo
     read -r -p "¿Quieres usar esta clave existente? (S/n): " respuesta
-    if [[ ! "$respuesta" =\~ ^[Nn]$ ]]; then
+    if [[ ! "$respuesta" =~ ^[Nn]$ ]]; then
         print_success "Usaremos la clave existente."
     else
         print_error "Entonces generaremos una nueva..."
